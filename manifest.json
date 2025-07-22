@@ -1,0 +1,21 @@
+﻿{
+  "name": "مدیریت مالی مونوپولی",
+  "short_name": "مونوپولی",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#f8f9fa",
+  "theme_color": "#f8f9fa",
+  "description": "مدیریت مالی بازی مونوپولی",
+  "icons": [
+    {
+      "src": "images/monopoly-logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "images/monopoly-logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

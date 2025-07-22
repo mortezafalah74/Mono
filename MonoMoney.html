@@ -1,0 +1,259 @@
+﻿<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>💰 مدیریت مالی مونوپولی</title>
+    <link href="libs/bootstrap.min.css" rel="stylesheet">
+    <script src="libs/jquery.min.js"></script>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#f8f9fa">
+
+    <style>
+        @font-face {
+            font-family: 'Vazir';
+            src: url('fonts/Vazir.woff2') format('woff2'), url('fonts/Vazir.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        body {
+            background: #f8f9fa;
+            font-family: 'Vazir', Tahoma, sans-serif;
+        }
+
+        .logo-container img {
+            max-width: 250px;
+            width: 100%;
+            height: auto;
+            display: block;
+            margin: 20px auto;
+        }
+
+        #giveFromBank, #takeToBank {
+            font-size: 12px;
+        }
+
+        .h5, h5 {
+            font-size: 1rem;
+        }
+
+        .h3, h3 {
+            font-size: 1.1rem;
+        }
+
+        .player-card {
+            border-radius: 10px;
+            padding: 10px;
+            margin: 5px 0;
+            color: #fff;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .page {
+            display: none;
+        }
+
+            .page.active {
+                display: block;
+            }
+    </style>
+</head>
+<body class="container py-3">
+
+    <!-- 🔥 صفحه اول: تعریف بازیکن‌ها -->
+    <div id="page-setup" class="page active">
+        <div class="logo-container">
+            <img src="images/monopoly-logo.png" alt="Monopoly Logo">
+        </div>
+
+        <h3 class="text-center">➕ بازیکن‌ها را تعریف کن</h3>
+
+        <div class="card p-3 my-3">
+            <div class="input-group mb-3">
+                <input type="text" id="playerName" class="form-control" placeholder="نام بازیکن">
+                <button id="addPlayer" class="btn btn-success">افزودن</button>
+            </div>
+        </div>
+
+        <h5>📋 بازیکن‌های فعلی</h5>
+        <div id="players-setup"></div>
+
+        <button id="startGame" class="btn btn-primary w-100 mt-3 py-2 fs-5">🎲 شروع بازی</button>
+    </div>
+
+    <!-- 🔥 صفحه دوم: صفحه بازی -->
+    <div id="page-game" class="page">
+
+
+        <h3 class="text-center mb-3">📊 موجودی</h3>
+        <div id="players-game" class="mb-3"></div>
+
+        <div class="card p-3 my-3">
+            <h5>↔️ انتقال بین بازیکن‌ها</h5>
+            <div class="row g-2">
+                <div class="col-6">
+                    <label class="form-label">از</label>
+                    <select id="fromPlayer" class="form-select"></select>
+                </div>
+                <div class="col-6">
+                    <label class="form-label">به</label>
+                    <select id="toPlayer" class="form-select"></select>
+                </div>
+            </div>
+            <div class="input-group my-2">
+                <input type="number" id="amount" class="form-control" placeholder="مبلغ">
+                <button id="transfer" class="btn btn-primary">انتقال</button>
+            </div>
+        </div>
+
+        <div class="card p-3 my-3">
+            <h5>🏦 بانک</h5>
+            <div class="mb-2">
+                <label class="form-label">بازیکن</label>
+                <select id="bankPlayer" class="form-select"></select>
+            </div>
+            <div class="input-group mb-2">
+                <input type="number" id="bankAmount" class="form-control" placeholder="مبلغ">
+            </div>
+            <div class="d-flex justify-content-between">
+                <button id="giveFromBank" class="btn btn-success flex-fill me-1">➕ از بانک به بازیکن</button>
+                <button id="takeToBank" class="btn btn-danger flex-fill ms-1">➖ از بازیکن به بانک</button>
+            </div>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <button id="backToSetup" class="btn btn-outline-secondary btn-sm">🔙 بازگشت</button>
+            <button id="resetAll" class="btn btn-outline-danger btn-sm">🔄 ریست کل اطلاعات</button>
+        </div>
+    </div>
+
+    <script>
+        let colorOptions = ["#539d53", "#00ceff", "#dbc445", "#cb2828"];
+        let players = JSON.parse(localStorage.getItem("players") || "{}");
+
+        function savePlayers() {
+            localStorage.setItem("players", JSON.stringify(players));
+        }
+
+        function refreshPlayersUI() {
+            // برای صفحه تعریف
+            $("#players-setup").empty();
+            for (const [name, data] of Object.entries(players)) {
+                $("#players-setup").append(`
+              <div class="player-card" style="background:${data.color}">
+                <span>${name}</span><span>${data.balance} 💵</span>
+              </div>
+            `);
+            }
+
+            // برای صفحه بازی
+            $("#players-game").empty();
+            $("#fromPlayer, #toPlayer, #bankPlayer").empty();
+            for (const [name, data] of Object.entries(players)) {
+                $("#players-game").append(`
+              <div class="player-card" style="background:${data.color}">
+                <span>${name}</span><span>${data.balance} 💵</span>
+              </div>
+            `);
+                $("#fromPlayer").append(`<option value="${name}">${name}</option>`);
+                $("#toPlayer").append(`<option value="${name}">${name}</option>`);
+                $("#bankPlayer").append(`<option value="${name}">${name}</option>`);
+            }
+        }
+
+        // افزودن بازیکن
+        $("#addPlayer").click(function () {
+            const name = $("#playerName").val().trim();
+            if (!name) return alert("نام را وارد کن");
+            if (players[name]) return alert("این بازیکن قبلاً وجود دارد");
+            let color = colorOptions[Object.keys(players).length % colorOptions.length];
+            players[name] = { balance: 1500, color: color };
+            savePlayers();
+            refreshPlayersUI();
+            $("#playerName").val("");
+        });
+
+        // انتقال
+        $("#transfer").click(function () {
+            const from = $("#fromPlayer").val();
+            const to = $("#toPlayer").val();
+            const amount = parseInt($("#amount").val());
+            if (from === to) return alert("فرستنده و گیرنده یکسان‌اند!");
+            if (isNaN(amount) || amount <= 0) return alert("مبلغ نامعتبر");
+            if (players[from].balance < amount) return alert("موجودی کافی نیست");
+            players[from].balance -= amount;
+            players[to].balance += amount;
+            savePlayers();
+            refreshPlayersUI();
+            $("#amount").val("");
+        });
+
+        // بانک
+        $("#giveFromBank").click(function () {
+            const player = $("#bankPlayer").val();
+            const amount = parseInt($("#bankAmount").val());
+            if (isNaN(amount) || amount <= 0) return alert("مبلغ نامعتبر");
+            players[player].balance += amount;
+            savePlayers();
+            refreshPlayersUI();
+            $("#bankAmount").val("");
+        });
+        $("#takeToBank").click(function () {
+            const player = $("#bankPlayer").val();
+            const amount = parseInt($("#bankAmount").val());
+            if (isNaN(amount) || amount <= 0) return alert("مبلغ نامعتبر");
+            if (players[player].balance < amount) return alert("موجودی بازیکن کافی نیست");
+            players[player].balance -= amount;
+            savePlayers();
+            refreshPlayersUI();
+            $("#bankAmount").val("");
+        });
+
+        // ریست
+        $("#resetAll").click(function () {
+            if (confirm("❗️ همه اطلاعات پاک بشه؟")) {
+                players = {};
+                localStorage.removeItem("players");
+                refreshPlayersUI();
+                showPage('setup');
+            }
+        });
+
+        // دکمه شروع بازی
+        $("#startGame").click(function () {
+            if (Object.keys(players).length < 1) {
+                alert("حداقل یک بازیکن اضافه کن");
+                return;
+            }
+            showPage('game');
+        });
+
+        // بازگشت
+        $("#backToSetup").click(function () {
+            showPage('setup');
+        });
+
+        function showPage(name) {
+            $(".page").removeClass("active");
+            if (name === 'setup') {
+                $("#page-setup").addClass("active");
+            } else {
+                $("#page-game").addClass("active");
+            }
+        }
+
+        refreshPlayersUI();
+    </script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js')
+                .then(() => console.log('Service Worker ثبت شد'))
+                .catch(err => console.log('خطا در ثبت Service Worker:', err));
+        }
+    </script>
+</body>
+</html>
