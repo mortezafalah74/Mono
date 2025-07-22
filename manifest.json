@@ -1,7 +1,7 @@
 ﻿{
   "name": "مدیریت مالی مونوپولی",
   "short_name": "مونوپولی",
-  "start_url": ".",
+  "start_url": "/Mono/MonoMoney.html",
   "display": "standalone",
   "background_color": "#f8f9fa",
   "theme_color": "#f8f9fa",
